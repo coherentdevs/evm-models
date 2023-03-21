@@ -12,6 +12,20 @@ def hex_to_int(hex) -> str:
 $$;
 
 {% endmacro %}
+
+create or replace function java_hextoint (s string)
+returns string
+language java
+handler='MyClass.x'
+as $$
+import java.math.*;
+class MyClass {
+  public static String x(String s) {
+      return new BigInteger(s, 16).toString();
+  }
+}
+$$;
+
 -- create
 -- or replace function {{ target.schema }}.transform_to_json(input_string string)
 -- returns string
