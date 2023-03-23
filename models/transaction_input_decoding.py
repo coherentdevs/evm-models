@@ -6,72 +6,54 @@ import regex
 import pandas as pd
 
 def parseType(type):
-    if is_array(type):
-        raw_type = type[:len(type)-2]
-        if raw_type.startswith('(') and raw_type.endswith(')'):
-            array_type = 'tuple'
-            tuple = raw_type
-        else:
-            array_type = raw_type
-            tuple = None
-        ret = {
-            'isArray': True,
-            'name': "array",
-            "arrayType": array_type,
-            "tuple": tuple
-        }
-        return ret
+    is_array = type.endswith("[]")
+    base_type = type[:-2] if is_array else type
+
+    if base_type.startswith("(") and base_type.endswith(")"):
+        name = "tuple"
     else:
-        if type.startswith('(') and type.endswith(')'):
-            return {'isArray': False, 'name': 'tuple', 'tuple': type}
-        return {'isArray': False, 'name': type}
+        name = "array" if is_array else base_type
+
+    ret = {
+        "isArray": is_array,
+        "name": name,
+        "arrayType": base_type if is_array else None,
+        "tuple": base_type if name == "tuple" else None,
+    }
+    return ret
 
 def extract_arguments(func_signature):
     # Extract arguments string from the function signature
-    start = func_signature.find('(')
-    end = func_signature.rfind(')')
+    start = func_signature.find("(")
+    end = func_signature.rfind(")")
     if start == -1 or end == -1:
         return []
 
-    arguments_str = func_signature[start + 1:end]
+    arguments_str = func_signature[start + 1 : end]
+    if not arguments_str.strip():
+        return []
 
-    # Split arguments by commas outside of parentheses and square brackets
-    arguments = []
-    open_parentheses = 0
-    open_brackets = 0
-    start = 0
-    for i, c in enumerate(arguments_str):
-        if c == '(':
-            open_parentheses += 1
-        elif c == ')':
-            open_parentheses -= 1
-        elif c == '[':
-            open_brackets += 1
-        elif c == ']':
-            open_brackets -= 1
-        elif c == ',' and open_parentheses == 0 and open_brackets == 0:
-            arguments.append(arguments_str[start:i].strip())
-            start = i + 1
-
-    # Add the last argument
-    if start < len(arguments_str):
-        arguments.append(arguments_str[start:].strip())
+    # Use a regular expression to split arguments
+    pattern = regex.compile(r',(?![^\[\]]*\]|[^\(\)]*\))')
+    arguments = [arg.strip() for arg in pattern.split(arguments_str)]
 
     return arguments
+
 def is_array(type):
     if type[-1] == "]":
         return True
     else:
         return False
+
 def decode_uint(data, offset):
     bytes_to_read = 32
     characters_to_read = bytes_to_read * 2
     uint_stripped = data[offset:offset + characters_to_read].lstrip("0")
     if len(uint_stripped) == 0:
         return "0", characters_to_read
-    add_0x = "0x" + uint_stripped
-    large_int = gmpy2.mpz(add_0x)
+    large_int = gmpy2.mpz("0x" + uint_stripped)
     return gmpy2.digits(large_int), characters_to_read
+
 def decodeSingle(parsed_type, data, offset, dynamic_bytes_data_start = 0):
     # base case, if type is bytes, uint, or int
     # if type(parsed_type) == "string":
@@ -85,7 +67,7 @@ def decodeSingle(parsed_type, data, offset, dynamic_bytes_data_start = 0):
         dynamic_bytes_data_start = length_offset + 64 # in case we are reading bytes, data array begins here
         array_offset = length_offset + 64
 
-        for i in range(0, length):
+        for _ in range(0, length):
             type = parsed_type["arrayType"]
             new_input = {'isArray': False, 'name': type, 'tuple': parsed_type["tuple"]}
             if type == "bytes" or type == "string":
@@ -199,22 +181,22 @@ def decode_input(input, hashed_signature):
         offset += characters_read
     return decoded_inputs
 
+def decode_row(row):
+    result = decode_input(row['INPUT'], row['HASHABLE_SIGNATURE'])
+    if "unable to decode" in result or "unknown type detected" in result:
+        return result, False
+    else:
+        return result, True
+
 def model(dbt, session):
-    dbt.config(materialized="table", packages = ["pandas", "regex", "gmpy2"])
+    dbt.config(materialized="table", packages=["pandas", "regex", "gmpy2"])
     transactions_with_method_abis_df = dbt.ref("raw_transactions_with_method_fragment")
 
     decoded_df = transactions_with_method_abis_df.to_pandas()
-    # decoded_df = decoded_df.loc[decoded_df['HASHABLE_SIGNATURE'] == "multiRedeem((address,uint96)[],bytes32[][],bytes32[])"]
+    # decoded_df = decoded_df.loc[
+    #     decoded_df['HASHABLE_SIGNATURE'] == "claimAndLock((address,address,uint256,bytes32[])[],uint256)"]
     decoded_df = decoded_df.head(10000)
-    decoded_inputs = []
-    decoded = []
-    for index, row in decoded_df.iterrows():
-        result = decode_input(row['INPUT'], row['HASHABLE_SIGNATURE'])
-        decoded_inputs.append(result)
-        if "unable to decode" in result or "unknown type detected" in result:
-            decoded.append(False)
-        else:
-            decoded.append(True)
-    decoded_df["decoded_input"] = decoded_inputs
-    decoded_df["decoded"] = decoded
+
+    decoded_df[["decoded_input", "decoded"]] = decoded_df.apply(decode_row, axis=1, result_type='expand')
+
     return decoded_df

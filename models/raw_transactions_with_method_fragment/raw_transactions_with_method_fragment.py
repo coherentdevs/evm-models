@@ -4,7 +4,7 @@ import snowflake.snowpark.functions as F
 
 def model(dbt, session):
     dbt.config(materialized="table")
-    eth_raw_transactions_df = dbt.source("ethereum_raw", "transactions")
+    eth_raw_transactions_df = dbt.source("ethereum_managed", "transactions")
     method_fragments_df = dbt.source("contracts", "method_fragments")
 
     input_and_transaction_df = eth_raw_transactions_df["TRANSACTION_HASH", "INPUT", "TO_ADDRESS"]

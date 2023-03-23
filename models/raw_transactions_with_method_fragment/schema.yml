@@ -1,9 +1,9 @@
 version: 2
 
 sources:
-  - name: ethereum_raw
+  - name: ethereum_managed
     description: "Database of ethereum raw"
-    database: ethereum
+    database: ethereum_managed
     schema: raw
     tables:
       - name: transactions
