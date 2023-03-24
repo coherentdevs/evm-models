@@ -36,5 +36,5 @@ models:
     example:
       +materialized: view
 
-#on-run-start:
-#  - "{{ create_udfs() }}"
+on-run-start:
+  - "{{ create_udfs() }}"

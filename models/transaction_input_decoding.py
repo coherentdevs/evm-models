@@ -1,25 +1,33 @@
-import sys
-
-import snowflake.snowpark.functions as F
+from snowflake.snowpark import UDF
 import gmpy2
 import regex
 import pandas as pd
 
 def parseType(type):
+    tuple = None
     is_array = type.endswith("[]")
-    base_type = type[:-2] if is_array else type
-
-    if base_type.startswith("(") and base_type.endswith(")"):
-        name = "tuple"
+    if is_array:
+        name = "array"
+        base_type = type[:-2]
+        if base_type.startswith("(") and base_type.endswith(")"):
+            tuple = base_type
+            base_type = "tuple"
+        ret = {
+            "isArray": is_array,
+            "name": name,
+            "arrayType": base_type,
+            "tuple": tuple,
+        }
     else:
-        name = "array" if is_array else base_type
-
-    ret = {
-        "isArray": is_array,
-        "name": name,
-        "arrayType": base_type if is_array else None,
-        "tuple": base_type if name == "tuple" else None,
-    }
+        if type.startswith("(") and type.endswith(")"):
+            type = "tuple"
+            tuple = type
+        ret = {
+            "isArray": is_array,
+            "name": type,
+            "arrayType": None,
+            "tuple": tuple,
+        }
     return ret
 
 def extract_arguments(func_signature):
@@ -39,12 +47,6 @@ def extract_arguments(func_signature):
 
     return arguments
 
-def is_array(type):
-    if type[-1] == "]":
-        return True
-    else:
-        return False
-
 def decode_uint(data, offset):
     bytes_to_read = 32
     characters_to_read = bytes_to_read * 2
@@ -55,12 +57,8 @@ def decode_uint(data, offset):
     return gmpy2.digits(large_int), characters_to_read
 
 def decodeSingle(parsed_type, data, offset, dynamic_bytes_data_start = 0):
-    # base case, if type is bytes, uint, or int
-    # if type(parsed_type) == "string":
-    #     parsed_type = parseType(parsed_type)
-
-    name = parsed_type["name"] # multiRedeem((address,uint96)[],bytes32[][],bytes32[])
-    if name == "array": # currently works on arrays that dont have nested tuples, for arrays with dynamic types, remove array length and offset
+    name = parsed_type["name"]
+    if name == "array":
         decoded_array = []
         length_offset = int(gmpy2.mpz("0x" + data[offset:offset + 64], 16).digits(10)) * 2 # finds where in data length of array is stored
         length = int(gmpy2.mpz("0x" + data[length_offset: length_offset + 64], 16).digits(10)) # length of array
@@ -82,24 +80,18 @@ def decodeSingle(parsed_type, data, offset, dynamic_bytes_data_start = 0):
         tuple = parsed_type["tuple"]
         total_characters_read = 0
         tuple_offset = 0
-
-        if "bytes" in tuple or "string" in tuple or ("[" in tuple and "]" in tuple): # tuple contains dynamic types
-            return "dynamic_types in tuple", 64
-        else:
-            extracted_types = extract_arguments(tuple)
-            for type in extracted_types:
-                if type.startswith("(") and type.endswith(")"):
-                    new_input = {'isArray': False, 'name': "tuple", "tuple": type}
-                    result, characters_read = decodeSingle(new_input, data, offset + tuple_offset)
-                else:
-                    new_input = {'isArray': False, 'name': type}
-                    result, characters_read = decodeSingle(new_input, data, offset + tuple_offset)
-                decoded_tuple.append(result)
-                total_characters_read += characters_read
-                tuple_offset += characters_read
-            return str(decoded_tuple), total_characters_read
-
-
+        extracted_types = extract_arguments(tuple)
+        for type in extracted_types:
+            if type.startswith("(") and type.endswith(")"):
+                new_input = {'isArray': False, 'name': "tuple", "tuple": type}
+                result, characters_read = decodeSingle(new_input, data, offset + tuple_offset)
+            else:
+                new_input = {'isArray': False, 'name': type}
+                result, characters_read = decodeSingle(new_input, data, offset + tuple_offset)
+            decoded_tuple.append(result)
+            total_characters_read += characters_read
+            tuple_offset += characters_read
+        return str(decoded_tuple), total_characters_read
     elif name.startswith('bytes') and name != "bytes": # bytes32
         bytes_to_read = 32
         characters_to_read = bytes_to_read * 2
@@ -181,22 +173,29 @@ def decode_input(input, hashed_signature):
         offset += characters_read
     return decoded_inputs
 
-def decode_row(row):
-    result = decode_input(row['INPUT'], row['HASHABLE_SIGNATURE'])
-    if "unable to decode" in result or "unknown type detected" in result:
-        return result, False
-    else:
-        return result, True
+def decode_row(input, hashed_signature):
+    result = decode_input(input, hashed_signature)
+    for res in result:
+        if "unable to decode" in res or "unknown type detected" in res:
+            return (result, False)
+
+    return (result, True)
 
 def model(dbt, session):
     dbt.config(materialized="table", packages=["pandas", "regex", "gmpy2"])
     transactions_with_method_abis_df = dbt.ref("raw_transactions_with_method_fragment")
+    transactions_with_method_abis_df = transactions_with_method_abis_df.limit(1000)
 
-    decoded_df = transactions_with_method_abis_df.to_pandas()
-    # decoded_df = decoded_df.loc[
-    #     decoded_df['HASHABLE_SIGNATURE'] == "claimAndLock((address,address,uint256,bytes32[])[],uint256)"]
-    decoded_df = decoded_df.head(10000)
+# loop through transactions_with_method_abis_df with and convert to pandas df in batches. Then apply decode_row to each row and add the result to an empty dataframe
+#     decoded_df = transactions_with_method_abis_df.limit(1000000).to_pandas()
+    # for pandas_df in transactions_with_method_abis_df.to_pandas_batches():
+    #     pandas_df[["decoded_input", "decoded"]] = pandas_df.apply(decode_row, axis=1, result_type='expand')
 
-    decoded_df[["decoded_input", "decoded"]] = decoded_df.apply(decode_row, axis=1, result_type='expand')
+    # decoded_df[["decoded_input", "decoded"]] = decoded_df.apply(decode_row, axis=1, result_type='expand')
+    decoded_df = transactions_with_method_abis_df.select(
+        transactions_with_method_abis_df["*"],
+        decode_row_and_input_udf(transactions_with_method_abis_df["INPUT"],
+                                 transactions_with_method_abis_df["HASHABLE_SIGNATURE"]).alias("decoded_results")
+    )
 
     return decoded_df
