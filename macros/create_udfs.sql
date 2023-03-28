@@ -4,6 +4,7 @@
     {{ extract_arguments() }}
     {{ check_decode_success() }}
     {{ hex_to_int() }}
+    {{ decode_dynamic() }}
 {% endmacro %}
 
 

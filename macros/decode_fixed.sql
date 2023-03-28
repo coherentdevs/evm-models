@@ -10,16 +10,15 @@ as
 $$
 import gmpy2
 def decode_fixed(fixed_types, input_data):
-    stripped_method_id_data = input_data[10:]
     offset = 0
     decoded_input = []
     for fixed_type in fixed_types:
         try:
             if fixed_type.startswith('uint'):
-                decoded_uint = decode_uint(stripped_method_id_data, offset)
+                decoded_uint = decode_uint(input_data, offset)
                 decoded_input.append(decoded_uint)
             elif fixed_type.startswith('int'):
-                int_block = stripped_method_id_data[offset:offset + 64]
+                int_block = input_data[offset:offset + 64]
                 first_hex = int_block[0]
                 if int(gmpy2.mpz("0x" + first_hex, 16).digits(10)) >= 8:
                     base_2 = gmpy2.mpz("0x" + int_block, 16).digits(2)
@@ -32,19 +31,19 @@ def decode_fixed(fixed_types, input_data):
 
                     decoded_input.append("-" + gmpy2.digits(incremented_binary_result, 10))
                 else:
-                    decoded_uint = decode_uint(stripped_method_id_data , offset)
+                    decoded_uint = decode_uint(input_data , offset)
                     decoded_input.append(decoded_uint)
             elif fixed_type == "address":
-                decoded_num = "0x" + stripped_method_id_data[offset + 24:offset + 64]
+                decoded_num = "0x" + input_data[offset + 24:offset + 64]
                 decoded_input.append(decoded_num)
             elif fixed_type == "bool":
-                decoded_bool = stripped_method_id_data[offset:offset + 64][-1]
+                decoded_bool = input_data[offset:offset + 64][-1]
                 if decoded_bool == "0":
                     decoded_input.append("False")
                 else:
                     decoded_input.append("True")
             elif fixed_type.startswith("bytes") and fixed_type != "bytes":
-                decoded_input.append("0x" + stripped_method_id_data[offset:offset + 64])
+                decoded_input.append("0x" + input_data[offset:offset + 64])
             else:
                 decoded_input.append("unknown type detected")
         except:
