@@ -2,7 +2,7 @@
 
 SELECT *,
        decode_input(INPUT, HASHABLE_SIGNATURE) as decoded_result
-FROM {{ ref('raw_transactions_with_method_fragments_table_sql') }} LIMIT 100000
+FROM {{ ref('raw_transactions_with_method_fragments_table') }} LIMIT 100000
 
 -- SELECT
 --   *,

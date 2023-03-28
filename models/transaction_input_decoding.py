@@ -182,7 +182,7 @@ def decode_row(input, hashed_signature):
 
 def model(dbt, session):
     dbt.config(materialized="table", packages=["pandas", "regex", "gmpy2"])
-    transactions_with_method_abis_df = dbt.ref("raw_transactions_with_method_fragments_table_sql")
+    transactions_with_method_abis_df = dbt.ref("raw_transactions_with_method_fragments_table")
     transactions_with_method_abis_df = transactions_with_method_abis_df.limit(1000)
 
 # loop through transactions_with_method_abis_df with and convert to pandas df in batches. Then apply decode_row to each row and add the result to an empty dataframe
