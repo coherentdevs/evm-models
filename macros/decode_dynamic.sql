@@ -4,16 +4,18 @@ or replace function {{ target.schema }}.decode_dynamic(dynamic_types ARRAY, inpu
 returns ARRAY
 language python
 runtime_version = '3.8'
-packages = ('gmpy2')
+packages = ('gmpy2', 'regex')
 handler = 'decode_dynamic'
 as
 $$
 import gmpy2
+import regex
 def decode_dynamic(dynamic_types, input_data, array_offset = 0):
-    offset = 0 + array_offset
-    decoded_input = []
-    for dynamic_type in dynamic_types:
-        try:
+    try:
+        decoded_successfully = True
+        offset = 0 + array_offset
+        decoded_input = []
+        for dynamic_type in dynamic_types:
             if dynamic_type == "string":
                 length_offset = int(gmpy2.mpz("0x" + input_data[offset:offset + 64], 16).digits(10)) * 2
                 length_start = length_offset
@@ -33,11 +35,13 @@ def decode_dynamic(dynamic_types, input_data, array_offset = 0):
                 if array_type.endswith("]") or array_type.endswith(")"):
                     decoded_input.append("unable to decode nested dynamic types")
                     offset += 64
+                    decoded_successfully = False
                     break
                 else:
                     decoded_array = []
                     length_offset = int(gmpy2.mpz("0x" + input_data[offset:offset + 64], 16).digits(10)) * 2
                     length = int(gmpy2.mpz("0x" + input_data[length_offset: length_offset + 64], 16).digits(10))
+                    if length > 10000: return ["unable to decode array of length " + str(length), False]
                     if array_type == "bytes" or array_type == "string":
                         array_offset = 0
                     else:
@@ -48,11 +52,12 @@ def decode_dynamic(dynamic_types, input_data, array_offset = 0):
                         else:
                             decoded_res = decode_dynamic([array_type], input_data, array_offset)
                         array_offset += 64
-                        decoded_array.append(decoded_res[0])
+                        decoded_array.append(decoded_res[0][0])
                     decoded_input.append(decoded_array)
             elif dynamic_type.startswith('(') and dynamic_type.endswith(')'):
                 decoded_input.append("unable to decode tuples")
                 offset += 64
+                decoded_successfully = False
                 break
             elif dynamic_type.startswith('uint'):
                 decoded_uint = decode_uint(input_data, offset)
@@ -86,10 +91,12 @@ def decode_dynamic(dynamic_types, input_data, array_offset = 0):
                 decoded_input.append("0x" + input_data[offset:offset + 64])
             else:
                 decoded_input.append("unable to decode dynamic type" + dynamic_type)
-        except:
-            decoded_input.append("unable to decode " + dynamic_type)
-        offset += 64
-    return decoded_input
+                decoded_successfully = False
+
+            offset += 64
+        return [decoded_input, decoded_successfully]
+    except Exception as e:
+        return [str(e), False]
 
 def decode_uint(data, offset):
     uint_stripped = data[offset:offset + 64].lstrip("0")

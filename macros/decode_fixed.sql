@@ -12,6 +12,7 @@ import gmpy2
 def decode_fixed(fixed_types, input_data):
     offset = 0
     decoded_input = []
+    decoded_successfully = True
     for fixed_type in fixed_types:
         try:
             if fixed_type.startswith('uint'):
@@ -46,12 +47,14 @@ def decode_fixed(fixed_types, input_data):
                 decoded_input.append("0x" + input_data[offset:offset + 64])
             else:
                 decoded_input.append("unknown type detected")
+                decoded_successfully = False
         except:
             decoded_input.append("unable to decode " + fixed_type)
+            decoded_successfully = False
 
         offset += 64
 
-    return decoded_input
+    return [decoded_input, decoded_successfully]
 
 def decode_uint(data, offset):
     uint_stripped = data[offset:offset + 64].lstrip("0")

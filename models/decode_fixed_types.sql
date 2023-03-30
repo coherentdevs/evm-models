@@ -1,18 +1,23 @@
 {{ config(materialized='table') }}
-WITH decoded_fixed_types AS (
+WITH decoded_data AS (
     SELECT
-        hex_to_int(BLOCK_NUMBER),
+        BLOCK_NUMBER,
         TRANSACTION_HASH,
         HASHABLE_SIGNATURE,
-        CONTRACT_ADDRESS,
-        NAME,
         INPUT,
-        decode_fixed(EXTRACTED_ARGUMENTS, SUBSTRING(INPUT,11)) as decoded_result
+        STATUS,
+        decode_fixed(EXTRACTED_ARGUMENTS, SUBSTRING(INPUT,11)) as decoded
     FROM {{ ref('extract_arguments') }}
     WHERE CONTAINS_DYNAMIC_ARGUMENTS = FALSE
-    LIMIT 10000000
+    AND MALFORMED_ARGUMENTS_PRESENT = FALSE
 )
 
-SELECT *,
-       check_decode_success(DECODED_RESULT) as decode_success
-FROM decoded_fixed_types
+SELECT
+    block_number,
+    transaction_hash,
+    hashable_signature,
+    input,
+    STATUS,
+    decoded[0] AS decoded_result,
+    decoded[1] AS decode_success
+FROM decoded_data

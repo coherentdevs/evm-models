@@ -27,15 +27,18 @@ WITH input_and_transaction AS (
         INPUT,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
     FROM {{ source('ethereum_managed', 'transactions') }}
+    LIMIT 500000000
 ),
 
 merged AS (
     SELECT
-        *
+        t.*,
+        m.METHOD_ID,
+        m.hashable_signature,
+        CASE WHEN m.METHOD_ID IS NULL AND t.METHOD_HEADER != '0x' THEN FALSE ELSE TRUE END AS decodeable
     FROM input_and_transaction t
-    INNER JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ ref('distinct_method_ids') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
-        AND t.TO_ADDRESS = m.CONTRACT_ADDRESS
 )
 
 SELECT * FROM merged
