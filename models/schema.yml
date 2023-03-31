@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: ethereum_managed
+    description: "Database of ethereum raw"
+    database: ethereum_managed
+    schema: raw
+    tables:
+      - name: transactions
+        description: "ethereum raw transactions"
+  - name: contracts
+    description: "Database of ethereum contract info, including event fragments and method fragments"
+    database: contracts
+    schema: evm
+    tables:
+      - name: method_fragments
+        description: "table of method fragments"
