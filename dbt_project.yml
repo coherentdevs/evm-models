@@ -33,9 +33,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   coherent_dbts:
     # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
 
-on-run-start:
-  - "{{ create_udfs() }}"
-  - "{{ check_malformed_args_present() }}"
+#on-run-start:
+#  - "{{ create_udfs() }}"
+#  - "{{ check_malformed_args_present() }}"

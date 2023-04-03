@@ -8,6 +8,10 @@ sources:
     tables:
       - name: transactions
         description: "ethereum raw transactions"
+      - name: logs
+        description: "ethereum raw logs"
+      - name: traces
+        description: "ethereum raw traces"
   - name: contracts
     description: "Database of ethereum contract info, including event fragments and method fragments"
     database: contracts
