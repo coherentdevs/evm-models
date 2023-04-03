@@ -34,6 +34,7 @@ models:
   coherent_dbts:
     # Config indicated by + and applies to all files under models/example/
 
-#on-run-start:
-#  - "{{ create_udfs() }}"
-#  - "{{ check_malformed_args_present() }}"
+on-run-start:
+  - "{{ create_udfs() }}"
+  - "{{ check_malformed_args_present() }}"
+  - "{{ decode_logs() }}"

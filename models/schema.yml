@@ -19,3 +19,5 @@ sources:
     tables:
       - name: method_fragments
         description: "table of method fragments"
+      - name: event_fragments
+        description: "table of event fragments"
