@@ -20,7 +20,6 @@ WITH traces AS (
         hex_to_int(VALUE) as VALUE,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
     FROM {{ source('ethereum_managed', 'traces') }}
-    LIMIT 100000000
 ),
 
 merged AS (
@@ -28,7 +27,7 @@ merged AS (
         t.*,
         m.METHOD_ID,
         m.hashable_signature,
-        CASE WHEN m.METHOD_ID IS NULL AND t.METHOD_HEADER != '0x' THEN FALSE ELSE TRUE END AS decodeable
+        m.abi
     FROM traces t
     LEFT JOIN {{ source('contracts', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
