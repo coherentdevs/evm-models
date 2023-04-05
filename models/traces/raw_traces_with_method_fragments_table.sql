@@ -20,7 +20,6 @@ WITH traces AS (
         hex_to_int(VALUE) as VALUE,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
     FROM {{ source('ethereum_managed', 'traces') }}
-    LIMIT 10000000
 ),
 
 merged AS (

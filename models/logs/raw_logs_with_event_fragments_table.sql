@@ -12,7 +12,6 @@ WITH logs AS (
         hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
         REMOVED
     FROM {{ source('ethereum_managed', 'logs') }}
-    LIMIT 10000000
 ),
 
 logs_with_event_id AS (
@@ -30,22 +29,15 @@ logs_with_event_id AS (
     FROM logs
 ),
 
-distinct_event_fragments_table AS (
-    SELECT *,
-           ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY event_id) as row_num
-    FROM {{ source('contracts', 'event_fragments') }}
-),
-
 merged AS (
     SELECT
         l.*,
-        d.event_id as matched_event_id,
-        d.full_signature,
-        d.abi,
-        d.hashable_signature
+        e.event_id,
+        e.abi,
+        e.hashable_signature
     FROM logs_with_event_id l
-    LEFT JOIN distinct_event_fragments_table d
-        ON l.extracted_event_id = d.event_id AND d.row_num = 1
+    LEFT JOIN {{ source('contracts', 'event_fragments') }} e
+        ON l.extracted_event_id = e.event_id
 )
 
 SELECT * FROM merged

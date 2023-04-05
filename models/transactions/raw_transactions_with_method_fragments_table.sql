@@ -27,7 +27,6 @@ WITH input_and_transaction AS (
         INPUT,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
     FROM {{ source('ethereum_managed', 'transactions') }}
-    LIMIT 10000000
 ),
 
 merged AS (

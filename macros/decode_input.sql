@@ -12,8 +12,7 @@ import gmpy2
 import ujson
 def decode_input(abi, data):
     try:
-        abi_fixed = abi.replace('}{"name', '},{"name')
-        json_object = ujson.loads(abi_fixed)
+        json_object = ujson.loads(abi)
         decoded_result = {}
         data_offset = 0
         decode_success = True
