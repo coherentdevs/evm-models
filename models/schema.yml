@@ -12,6 +12,8 @@ sources:
         description: "ethereum raw logs"
       - name: traces
         description: "ethereum raw traces"
+      - name: blocks
+        description: "ethereum raw blocks"
   - name: contracts
     description: "Database of ethereum contract info, including event fragments and method fragments"
     database: contracts
