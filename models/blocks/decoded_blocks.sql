@@ -22,4 +22,4 @@ SELECT
     UNCLES,
     hex_to_int(BASE_FEE_PER_GAS) AS base_fee_per_gas
 FROM
-    {{ source('ethereum_managed', 'blocks') }}
+    {{ source('ethereum_raw_data', 'blocks') }}
