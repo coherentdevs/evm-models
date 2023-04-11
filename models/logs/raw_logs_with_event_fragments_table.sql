@@ -11,7 +11,7 @@ WITH logs AS (
         TRANSACTION_HASH,
         hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
         REMOVED
-    FROM {{ source('ethereum_managed', 'logs') }}
+    FROM {{ source('ethereum_raw_data', 'logs') }}
 ),
 
 logs_with_event_id AS (
@@ -36,7 +36,7 @@ merged AS (
         e.abi,
         e.hashable_signature
     FROM logs_with_event_id l
-    LEFT JOIN {{ source('contracts', 'event_fragments') }} e
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'event_fragments') }} e
         ON l.extracted_event_id = e.event_id
 )
 

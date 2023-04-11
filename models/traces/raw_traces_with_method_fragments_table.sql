@@ -19,7 +19,7 @@ WITH traces AS (
         TYPE,
         hex_to_int(VALUE) as VALUE,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-    FROM {{ source('ethereum_managed', 'traces') }}
+    FROM {{ source('ethereum_raw_data', 'traces') }}
 ),
 
 merged AS (
@@ -29,7 +29,7 @@ merged AS (
         m.hashable_signature,
         m.abi
     FROM traces t
-    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 )
 

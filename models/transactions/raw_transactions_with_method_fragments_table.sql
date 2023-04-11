@@ -26,7 +26,7 @@ WITH input_and_transaction AS (
         ACCESS_LIST,
         INPUT,
         SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-    FROM {{ source('ethereum_managed', 'transactions') }}
+    FROM {{ source('ethereum_raw_data', 'transactions') }}
 ),
 
 merged AS (
@@ -39,7 +39,7 @@ merged AS (
             ELSE NULL
         END AS ABI
     FROM input_and_transaction t
-    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 )
 
