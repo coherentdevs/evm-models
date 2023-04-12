@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key=['transaction_hash','log_index']) }}
+{{ config(materialized='incremental', unique_key=['transaction_hash','log_index'], cluster_by=['transaction_hash']) }}
 
 {% if is_incremental() %}
     WITH logs AS (

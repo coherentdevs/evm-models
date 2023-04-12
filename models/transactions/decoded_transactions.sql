@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key='transaction_hash') }}
+{{ config(materialized='incremental', unique_key='transaction_hash', cluster_by=['from_address']) }}
 
 {% if is_incremental() %}
     WITH input_and_transaction AS (

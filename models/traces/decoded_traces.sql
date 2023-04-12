@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key=['transaction_hash','trace_hash']) }}
+{{ config(materialized='incremental', unique_key=['transaction_hash','trace_hash'], cluster_by=['transaction_hash']) }}
 
 {% if is_incremental() %}
     WITH traces AS (
