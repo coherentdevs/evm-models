@@ -70,20 +70,14 @@ def decode_single(data, type, offset):
         return decoded_uint, True
     elif type.startswith('int'):
         int_block = data[offset:offset + 64]
-        first_hex = int_block[0]
-        if int(gmpy2.mpz("0x" + first_hex, 16).digits(10)) >= 8:
-            base_2 = gmpy2.mpz("0x" + int_block, 16).digits(2)
+        unsigned_value = gmpy2.mpz("0x" + int_block, 16)
+        signed_value = unsigned_value
 
-            flipped_binary_str = ""
-            for bit in base_2:
-                flipped_bit = '0' if bit == '1' else '1'
-                flipped_binary_str += flipped_bit
-            incremented_binary_result = gmpy2.mpz(flipped_binary_str, 2) + 1
+        # Check if the first bit is 1, indicating a negative number
+        if unsigned_value >> 255:
+            signed_value = -(~unsigned_value & ((1 << 256) - 1)) - 1
 
-            return "-" + gmpy2.digits(incremented_binary_result, 10), True
-        else:
-            decoded_uint = decode_uint(data , offset)
-            return decoded_uint, True
+        return float(signed_value), True
     elif type == "address":
         decoded_num = "0x" + data[offset + 24:offset + 64]
         return decoded_num, True
@@ -98,12 +92,12 @@ def decode_single(data, type, offset):
     else:
         return "unknown type detected", False
 
-
 def decode_uint(data, offset):
     uint_stripped = data[offset:offset + 64].lstrip("0")
     if len(uint_stripped) == 0:
         return "0"
-    large_int = gmpy2.mpz("0x" + uint_stripped)
-    return gmpy2.digits(large_int)
+    value = gmpy2.mpz("0x" + uint_stripped)
+    return float(value)
+
 $$;
 {% endmacro %}

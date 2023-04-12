@@ -1,6 +1,64 @@
-{{ config(materialized='table') }}
+{{ config(materialized='incremental', unique_key=['transaction_hash','trace_hash']) }}
 
-WITH decoded_traces AS (
+{% if is_incremental() %}
+    WITH traces AS (
+        SELECT
+            BLOCK_HASH,
+            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            ERROR,
+            FROM_ADDRESS,
+            hex_to_int(GAS) as GAS,
+            hex_to_int(GAS_USED) as GAS_USED,
+            TRACE_INDEX,
+            INPUT,
+            OUTPUT,
+            PARENT_HASH,
+            REVERT_REASON,
+            TO_ADDRESS,
+            TRACE_HASH,
+            TRANSACTION_HASH,
+            TYPE,
+            hex_to_int(VALUE) as VALUE,
+            SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
+        FROM {{ source('ethereum_managed', 'traces') }}
+        WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
+    ),
+{% else %}
+    WITH traces AS (
+        SELECT
+            BLOCK_HASH,
+            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            ERROR,
+            FROM_ADDRESS,
+            hex_to_int(GAS) as GAS,
+            hex_to_int(GAS_USED) as GAS_USED,
+            TRACE_INDEX,
+            INPUT,
+            OUTPUT,
+            PARENT_HASH,
+            REVERT_REASON,
+            TO_ADDRESS,
+            TRACE_HASH,
+            TRANSACTION_HASH,
+            TYPE,
+            hex_to_int(VALUE) as VALUE,
+            SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
+        FROM {{ source('ethereum_managed', 'traces') }}
+    ),
+{% endif %}
+
+merged AS (
+    SELECT
+        t.*,
+        m.METHOD_ID,
+        m.hashable_signature,
+        m.abi
+    FROM traces t
+    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+        ON t.METHOD_HEADER = m.METHOD_ID
+),
+
+decoded_traces AS (
     SELECT
         BLOCK_HASH,
         BLOCK_NUMBER,
@@ -22,7 +80,7 @@ WITH decoded_traces AS (
         HASHABLE_SIGNATURE,
         decode_input(abi, SUBSTRING(INPUT,11))[0] as decoded_result,
         decode_input(abi, SUBSTRING(INPUT,11))[1] as decoded_success
-    FROM {{ ref('raw_traces_with_method_fragments_table') }}
+    FROM merged
     WHERE ABI IS NOT NULL
 ),
 
@@ -72,7 +130,7 @@ no_abi AS (
         VALUE,
         NULL AS HASHABLE_SIGNATURE,
         NULL AS DECODED_INPUT
-    FROM {{ ref('raw_traces_with_method_fragments_table') }}
+    FROM merged
     WHERE ABI IS NULL
 ),
 
