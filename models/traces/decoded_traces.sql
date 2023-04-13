@@ -4,11 +4,11 @@
     WITH traces AS (
         SELECT
             BLOCK_HASH,
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             ERROR,
             FROM_ADDRESS,
-            hex_to_int(GAS) as GAS,
-            hex_to_int(GAS_USED) as GAS_USED,
+            TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
+            TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
             TRACE_INDEX,
             INPUT,
             OUTPUT,
@@ -18,7 +18,7 @@
             TRACE_HASH,
             TRANSACTION_HASH,
             TYPE,
-            hex_to_int(VALUE) as VALUE,
+            TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
         FROM {{ source('ethereum_managed', 'traces') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
@@ -27,11 +27,11 @@
     WITH traces AS (
         SELECT
             BLOCK_HASH,
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             ERROR,
             FROM_ADDRESS,
-            hex_to_int(GAS) as GAS,
-            hex_to_int(GAS_USED) as GAS_USED,
+            TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
+            TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
             TRACE_INDEX,
             INPUT,
             OUTPUT,
@@ -41,7 +41,7 @@
             TRACE_HASH,
             TRANSACTION_HASH,
             TYPE,
-            hex_to_int(VALUE) as VALUE,
+            TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
         FROM {{ source('ethereum_managed', 'traces') }}
     ),

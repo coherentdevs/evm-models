@@ -5,12 +5,12 @@
         SELECT
             ADDRESS,
             BLOCK_HASH,
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             DATA,
-            hex_to_int(LOG_INDEX) as LOG_INDEX,
+            TRY_CAST(hex_to_int(LOG_INDEX) as FLOAT) as LOG_INDEX,
             TOPICS,
             TRANSACTION_HASH,
-            hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
+            TRY_CAST(hex_to_int(TRANSACTION_INDEX) as FLOAT) as TRANSACTION_INDEX,
             REMOVED
         FROM {{ source('ethereum_managed', 'logs') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
@@ -20,12 +20,12 @@
         SELECT
             ADDRESS,
             BLOCK_HASH,
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             DATA,
-            hex_to_int(LOG_INDEX) as LOG_INDEX,
+            TRY_CAST(hex_to_int(LOG_INDEX) as FLOAT) as LOG_INDEX,
             TOPICS,
             TRANSACTION_HASH,
-            hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
+            TRY_CAST(hex_to_int(TRANSACTION_INDEX) as FLOAT) as TRANSACTION_INDEX,
             REMOVED
         FROM {{ source('ethereum_managed', 'logs') }}
     ),

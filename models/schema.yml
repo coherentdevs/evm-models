@@ -1,9 +1,9 @@
 version: 2
 
 sources:
-  - name: ethereum_raw_data
+  - name: ethereum_managed
     description: "Database of ethereum raw"
-    database: ethereum_raw_data
+    database: ethereum_managed
     schema: raw
     tables:
       - name: transactions
@@ -14,9 +14,9 @@ sources:
         description: "ethereum raw traces"
       - name: blocks
         description: "ethereum raw blocks"
-  - name: evm_contract_fragments_data
+  - name: contracts
     description: "Database of ethereum contract info, including event fragments and method fragments"
-    database: evm_contract_fragments_data
+    database: contracts
     schema: evm
     tables:
       - name: method_fragments
