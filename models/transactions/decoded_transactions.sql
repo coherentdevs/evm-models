@@ -3,61 +3,61 @@
 {% if is_incremental() %}
     WITH input_and_transaction AS (
         SELECT
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             BLOCK_HASH,
-            hex_to_int(CUMULATIVE_GAS_USED) as CUMULATIVE_GAS_USED,
-            hex_to_int(EFFECTIVE_GAS_PRICE) as EFFECTIVE_GAS_PRICE,
+            TRY_CAST(hex_to_int(CUMULATIVE_GAS_USED) as FLOAT) as CUMULATIVE_GAS_USED,
+            TRY_CAST(hex_to_int(EFFECTIVE_GAS_PRICE) as FLOAT) as EFFECTIVE_GAS_PRICE,
             FROM_ADDRESS,
-            hex_to_int(GAS) as GAS,
-            hex_to_int(GAS_PRICE) as GAS_PRICE,
-            hex_to_int(GAS_USED) as GAS_USED,
+            TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
+            TRY_CAST(hex_to_int(GAS_PRICE) as FLOAT) as GAS_PRICE,
+            TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
             LOGS_BLOOM,
-            hex_to_int(MAX_FEE_PER_GAS) as MAX_FEE_PER_GAS,
-            hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as MAX_PRIORITY_FEE_PER_GAS,
-            hex_to_int(NONCE) as NONCE,
+            TRY_CAST(hex_to_int(MAX_FEE_PER_GAS) as FLOAT) as MAX_FEE_PER_GAS,
+            TRY_CAST(hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as FLOAT) as MAX_PRIORITY_FEE_PER_GAS,
+            TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
             R,
             S,
-            hex_to_int(STATUS) as STATUS,
+            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
             TO_ADDRESS,
             TRANSACTION_HASH,
             hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
-            hex_to_int(TYPE) as TYPE,
+            TRY_CAST(hex_to_int(TYPE) as FLOAT) as TYPE,
             V,
-            hex_to_int(VALUE) as VALUE,
+            TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'transactions') }}
+        FROM {{ source('ethereum_raw_data', 'transactions') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
     ),
 {% else %}
     WITH input_and_transaction AS (
         SELECT
-            hex_to_int(BLOCK_NUMBER) as BLOCK_NUMBER,
+            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
             BLOCK_HASH,
-            hex_to_int(CUMULATIVE_GAS_USED) as CUMULATIVE_GAS_USED,
-            hex_to_int(EFFECTIVE_GAS_PRICE) as EFFECTIVE_GAS_PRICE,
+            TRY_CAST(hex_to_int(CUMULATIVE_GAS_USED) as FLOAT) as CUMULATIVE_GAS_USED,
+            TRY_CAST(hex_to_int(EFFECTIVE_GAS_PRICE) as FLOAT) as EFFECTIVE_GAS_PRICE,
             FROM_ADDRESS,
-            hex_to_int(GAS) as GAS,
-            hex_to_int(GAS_PRICE) as GAS_PRICE,
-            hex_to_int(GAS_USED) as GAS_USED,
+            TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
+            TRY_CAST(hex_to_int(GAS_PRICE) as FLOAT) as GAS_PRICE,
+            TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
             LOGS_BLOOM,
-            hex_to_int(MAX_FEE_PER_GAS) as MAX_FEE_PER_GAS,
-            hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as MAX_PRIORITY_FEE_PER_GAS,
-            hex_to_int(NONCE) as NONCE,
+            TRY_CAST(hex_to_int(MAX_FEE_PER_GAS) as FLOAT) as MAX_FEE_PER_GAS,
+            TRY_CAST(hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as FLOAT) as MAX_PRIORITY_FEE_PER_GAS,
+            TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
             R,
             S,
-            hex_to_int(STATUS) as STATUS,
+            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
             TO_ADDRESS,
             TRANSACTION_HASH,
             hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
-            hex_to_int(TYPE) as TYPE,
+            TRY_CAST(hex_to_int(TYPE) as FLOAT) as TYPE,
             V,
-            hex_to_int(VALUE) as VALUE,
+            TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'transactions') }}
+        FROM {{ source('ethereum_raw_data', 'transactions') }}
     ),
 {% endif %}
 
@@ -71,7 +71,7 @@ merged AS (
             ELSE NULL
         END AS ABI
     FROM input_and_transaction t
-    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 ),
 
