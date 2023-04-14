@@ -17,7 +17,7 @@
             TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
             R,
             S,
-            hex_to_int(STATUS) as STATUS,
+            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
             TO_ADDRESS,
             TRANSACTION_HASH,
             hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
@@ -27,7 +27,7 @@
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'transactions') }}
+        FROM {{ source('ethereum_raw_data', 'transactions') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
     ),
 {% else %}
@@ -47,7 +47,7 @@
             TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
             R,
             S,
-            hex_to_int(STATUS) as STATUS,
+            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
             TO_ADDRESS,
             TRANSACTION_HASH,
             hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
@@ -57,8 +57,7 @@
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'transactions') }}
-        LIMIT 1000000
+        FROM {{ source('ethereum_raw_data', 'transactions') }}
     ),
 {% endif %}
 
@@ -72,7 +71,7 @@ merged AS (
             ELSE NULL
         END AS ABI
     FROM input_and_transaction t
-    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 ),
 

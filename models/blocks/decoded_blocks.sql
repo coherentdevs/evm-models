@@ -22,7 +22,7 @@
         TRANSACTIONS_ROOT,
         UNCLES,
         TRY_CAST(hex_to_int(BASE_FEE_PER_GAS) as FLOAT) AS base_fee_per_gas
-    FROM {{ source('ethereum_managed', 'blocks') }}
+    FROM {{ source('ethereum_raw_data', 'blocks') }}
     WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3)))) > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
 {% else %}
     SELECT
@@ -46,5 +46,5 @@
         TRANSACTIONS_ROOT,
         UNCLES,
         TRY_CAST(hex_to_int(BASE_FEE_PER_GAS) as FLOAT) AS base_fee_per_gas
-    FROM {{ source('ethereum_managed', 'blocks') }}
+    FROM {{ source('ethereum_raw_data', 'blocks') }}
 {% endif %}

@@ -9,7 +9,7 @@
             FROM_ADDRESS,
             TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
             TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
-            TRACE_INDEX,
+            TRY_CAST(hex_to_int(TRACE_INDEX) as FLOAT) as TRACE_INDEX,
             INPUT,
             OUTPUT,
             PARENT_HASH,
@@ -20,7 +20,7 @@
             TYPE,
             TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'traces') }}
+        FROM {{ source('ethereum_raw_data', 'traces') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
     ),
 {% else %}
@@ -32,7 +32,7 @@
             FROM_ADDRESS,
             TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
             TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
-            TRACE_INDEX,
+            TRY_CAST(hex_to_int(TRACE_INDEX) as FLOAT) as TRACE_INDEX,
             INPUT,
             OUTPUT,
             PARENT_HASH,
@@ -43,7 +43,7 @@
             TYPE,
             TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_managed', 'traces') }}
+        FROM {{ source('ethereum_raw_data', 'traces') }}
     ),
 {% endif %}
 
@@ -54,7 +54,7 @@ merged AS (
         m.hashable_signature,
         m.abi
     FROM traces t
-    LEFT JOIN {{ source('contracts', 'method_fragments') }} m
+    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 ),
 
