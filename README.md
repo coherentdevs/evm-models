@@ -15,10 +15,12 @@ To get started, clone this repository and follow the instructions in the `README
 
 Our base models include:
 
-- `raw_transactions`: Contains raw Ethereum transaction data.
 - `decoded_transactions`: Contains decoded Ethereum transaction data based on the available ABIs.
+- `decoded_traces`: Contains decoded Ethereum traces data based on the available ABIs.
+- `decoded_logs`: Contains decoded Ethereum logs data based on the available ABIs.
+- `decoded_blocks`: Contains human readable and queriable Ethereum block data.
 
-These models can be extended with custom DBT models to fit your specific needs. We have the same base models for traces and logs as well
+These models can be extended with custom DBT models to fit your specific needs. We have the same base models for traces, blocks, and logs as well
 
 ## Custom Models
 
