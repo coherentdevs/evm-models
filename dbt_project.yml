@@ -9,6 +9,15 @@ config-version: 2
 # This setting configures which "profile" dbt uses for this project.
 profile: 'coherent_dbts'
 
+# default variable names if no vars are passed into the dbt run command
+vars:
+  raw_database: "ethereum_raw_data"
+  source_table_transactions: "transactions"
+  source_table_traces: "traces"
+  source_table_blocks: "blocks"
+  source_table_logs: "logs"
+  contracts_database: "evm_contract_fragments_data"
+
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!

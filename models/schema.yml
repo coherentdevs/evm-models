@@ -1,22 +1,26 @@
 version: 2
 
 sources:
-  - name: ethereum_raw_data
+  - name: "{{ var('raw_database') }}"
     description: "Database of ethereum raw"
-    database: ethereum_raw_data
+    database: "{{ var('raw_database') }}"
     schema: raw
     tables:
       - name: transactions
         description: "ethereum raw transactions"
+        identifier: "{{ var('source_table_transactions') }}"
       - name: logs
         description: "ethereum raw logs"
+        identifier: "{{ var('source_table_logs') }}"
       - name: traces
         description: "ethereum raw traces"
+        identifier: "{{ var('source_table_traces') }}"
       - name: blocks
         description: "ethereum raw blocks"
-  - name: evm_contract_fragments_data
+        identifier: "{{ var('source_table_blocks') }}"
+  - name: "{{ var('contracts_database') }}"
     description: "Database of ethereum contract info, including event fragments and method fragments"
-    database: evm_contract_fragments_data
+    database: "{{ var('contracts_database') }}"
     schema: evm
     tables:
       - name: method_fragments

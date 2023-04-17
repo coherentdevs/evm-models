@@ -12,7 +12,7 @@
             TRANSACTION_HASH,
             TRY_CAST(hex_to_int(TRANSACTION_INDEX) as FLOAT) as TRANSACTION_INDEX,
             REMOVED
-        FROM {{ source('ethereum_raw_data', 'logs') }}
+        FROM {{ source(var('raw_database'), 'logs') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
     ),
 {% else %}
@@ -27,7 +27,7 @@
             TRANSACTION_HASH,
             TRY_CAST(hex_to_int(TRANSACTION_INDEX) as FLOAT) as TRANSACTION_INDEX,
             REMOVED
-        FROM {{ source('ethereum_raw_data', 'logs') }}
+        FROM {{ source(var('raw_database'), 'logs') }}
     ),
 {% endif %}
 
@@ -53,7 +53,7 @@ merged AS (
         e.abi,
         e.hashable_signature
     FROM logs_with_event_id l
-    LEFT JOIN {{ source('evm_contract_fragments_data', 'event_fragments') }} e
+    LEFT JOIN {{ source(var('contracts_database'), 'event_fragments') }} e
         ON l.extracted_event_id = e.event_id
 ),
 
