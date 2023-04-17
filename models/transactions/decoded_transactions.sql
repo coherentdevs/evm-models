@@ -27,7 +27,7 @@
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_raw_data', 'transactions') }}
+        FROM {{ source(var('raw_database'), 'transactions') }}
         WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
     ),
 {% else %}
@@ -57,7 +57,7 @@
             ACCESS_LIST,
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source('ethereum_raw_data', 'transactions') }}
+        FROM {{ source(var('raw_database'), 'transactions') }}
     ),
 {% endif %}
 
@@ -71,7 +71,7 @@ merged AS (
             ELSE NULL
         END AS ABI
     FROM input_and_transaction t
-    LEFT JOIN {{ source('evm_contract_fragments_data', 'method_fragments') }} m
+    LEFT JOIN {{ source(var('contracts_database'), 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
 ),
 
