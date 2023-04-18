@@ -1,0 +1,23 @@
+coherent_dbts:
+  target: development
+  outputs:
+    development:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_DEV') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_DEV') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_DEV') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_DEV') }}"
+      schema: development
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_DEV') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_DEV') }}"
+    production:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_PROD') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_PROD') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_PROD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_PROD') }}"
+      schema: decoded
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_PROD') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_PROD') }}"
