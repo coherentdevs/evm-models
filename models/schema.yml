@@ -4,7 +4,7 @@ sources:
   - name: "{{ var('raw_database') }}"
     description: "Database of ethereum raw"
     database: "{{ var('raw_database') }}"
-    schema: raw
+    schema: "{{ var('raw_schema') }}"
     tables:
       - name: transactions
         description: "ethereum raw transactions"
@@ -21,7 +21,7 @@ sources:
   - name: "{{ var('contracts_database') }}"
     description: "Database of ethereum contract info, including event fragments and method fragments"
     database: "{{ var('contracts_database') }}"
-    schema: evm
+    schema: "{{ var('contracts_schema') }}"
     tables:
       - name: method_fragments
         description: "table of method fragments"
