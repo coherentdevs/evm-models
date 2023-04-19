@@ -17,6 +17,9 @@ vars:
   source_table_blocks: "blocks"
   source_table_logs: "logs"
   contracts_database: "evm_contract_fragments_data"
+  raw_schema: "raw"
+  contracts_schema: "evm"
+
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
