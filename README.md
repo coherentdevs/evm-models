@@ -9,7 +9,7 @@ Our Ethereum DBT Models and Tables provide a solid foundation for developers to 
 
 ## Getting Started
 
-To get started, clone this repository and follow the instructions in the `README.md` file. Configure your `profiles.yml` file with the appropriate Snowflake credentials and warehouse settings. Once you have the repository set up, you can start running DBT commands to build and analyze the models.
+To get started, clone this repository and follow the instructions in the `README.md` file. Ensure you have installed dbt with the snowflake adapter and have access to our snowflake raw listing. Configure your `profiles.yml` file with the appropriate Snowflake credentials and warehouse settings. Once you have the repository set up, you can start running DBT commands to build and analyze the models.
 
 ## Base Models
 
