@@ -19,6 +19,13 @@ vars:
   contracts_database: "evm_contract_fragments_data"
   raw_schema: "raw"
   contracts_schema: "evm"
+  decoded_database: "ethereum_decoded_data"
+  decoded_schema: "decoded"
+  decoded_table_transactions: "decoded_transactions"
+  decoded_table_traces: "decoded_traces"
+  decoded_table_blocks: "decoded_blocks"
+  decoded_table_logs: "decoded_logs"
+  backfill: False
 
 
 # These configurations specify where dbt should look for different types of files.
