@@ -27,3 +27,20 @@ sources:
         description: "table of method fragments"
       - name: event_fragments
         description: "table of event fragments"
+  - name: "{{ var('decoded_database') }}"
+    description: "Database of ethereum decoded"
+    database: "{{ var('decoded_database') }}"
+    schema: "{{ var('decoded_schema') }}"
+    tables:
+      - name: decoded_transactions
+        description: "ethereum decoded transactions"
+        identifier: "{{ var('decoded_table_transactions') }}"
+      - name: decoded_logs
+        description: "ethereum decoded logs"
+        identifier: "{{ var('decoded_table_logs') }}"
+      - name: decoded_traces
+        description: "ethereum decoded traces"
+        identifier: "{{ var('decoded_table_traces') }}"
+      - name: decoded_blocks
+        description: "ethereum decoded blocks"
+        identifier: "{{ var('decoded_table_blocks') }}"

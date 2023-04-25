@@ -1,6 +1,68 @@
-{{ config(materialized='incremental', unique_key='transaction_hash', cluster_by=['from_address']) }}
+{{ config(materialized='incremental', unique_key='transaction_hash', merge_update_columns = ['hashable_signature', 'decoded_input'], cluster_by=['from_address']) }}
 
 {% if is_incremental() %}
+    {% if not var('backfill') %} -- if not backfilling
+        WITH input_and_transaction AS (
+            SELECT
+                TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
+                BLOCK_HASH,
+                TRY_CAST(hex_to_int(CUMULATIVE_GAS_USED) as FLOAT) as CUMULATIVE_GAS_USED,
+                TRY_CAST(hex_to_int(EFFECTIVE_GAS_PRICE) as FLOAT) as EFFECTIVE_GAS_PRICE,
+                FROM_ADDRESS,
+                TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
+                TRY_CAST(hex_to_int(GAS_PRICE) as FLOAT) as GAS_PRICE,
+                TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
+                LOGS_BLOOM,
+                TRY_CAST(hex_to_int(MAX_FEE_PER_GAS) as FLOAT) as MAX_FEE_PER_GAS,
+                TRY_CAST(hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as FLOAT) as MAX_PRIORITY_FEE_PER_GAS,
+                TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
+                R,
+                S,
+                True as Status,
+                TO_ADDRESS,
+                TRANSACTION_HASH,
+                hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
+                TRY_CAST(hex_to_int(TYPE) as FLOAT) as TYPE,
+                V,
+                TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
+                ACCESS_LIST,
+                INPUT,
+                SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
+            FROM {{ source(var('raw_database'), 'transactions') }}
+            WHERE STATUS = '0x1' AND to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(block_number) FROM {{ this }}) -- this is the only change
+        ),
+    {% else %} -- backfilling
+        WITH input_and_transaction AS (
+            SELECT
+                BLOCK_NUMBER,
+                BLOCK_HASH,
+                CUMULATIVE_GAS_USED,
+                EFFECTIVE_GAS_PRICE,
+                FROM_ADDRESS,
+                GAS,
+                GAS_PRICE,
+                GAS_USED,
+                LOGS_BLOOM,
+                MAX_FEE_PER_GAS,
+                MAX_PRIORITY_FEE_PER_GAS,
+                NONCE,
+                R,
+                S,
+                STATUS,
+                TO_ADDRESS,
+                TRANSACTION_HASH,
+                TRANSACTION_INDEX,
+                TYPE,
+                V,
+                VALUE,
+                ACCESS_LIST,
+                INPUT,
+                SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
+            FROM {{ source(var('decoded_database'), 'decoded_transactions') }}
+            WHERE DECODED_INPUT is NULL AND INPUT != '0x'
+        ),
+    {% endif %}
+{% else %} -- full refresh
     WITH input_and_transaction AS (
         SELECT
             TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
@@ -17,7 +79,7 @@
             TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
             R,
             S,
-            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
+            True as Status,
             TO_ADDRESS,
             TRANSACTION_HASH,
             hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
@@ -28,36 +90,7 @@
             INPUT,
             SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
         FROM {{ source(var('raw_database'), 'transactions') }}
-        WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3))))  > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
-    ),
-{% else %}
-    WITH input_and_transaction AS (
-        SELECT
-            TRY_CAST(hex_to_int(BLOCK_NUMBER) as FLOAT) as BLOCK_NUMBER,
-            BLOCK_HASH,
-            TRY_CAST(hex_to_int(CUMULATIVE_GAS_USED) as FLOAT) as CUMULATIVE_GAS_USED,
-            TRY_CAST(hex_to_int(EFFECTIVE_GAS_PRICE) as FLOAT) as EFFECTIVE_GAS_PRICE,
-            FROM_ADDRESS,
-            TRY_CAST(hex_to_int(GAS) as FLOAT) as GAS,
-            TRY_CAST(hex_to_int(GAS_PRICE) as FLOAT) as GAS_PRICE,
-            TRY_CAST(hex_to_int(GAS_USED) as FLOAT) as GAS_USED,
-            LOGS_BLOOM,
-            TRY_CAST(hex_to_int(MAX_FEE_PER_GAS) as FLOAT) as MAX_FEE_PER_GAS,
-            TRY_CAST(hex_to_int(MAX_PRIORITY_FEE_PER_GAS) as FLOAT) as MAX_PRIORITY_FEE_PER_GAS,
-            TRY_CAST(hex_to_int(NONCE) as NUMBER) as NONCE,
-            R,
-            S,
-            CASE WHEN hex_to_int(STATUS) = '1' THEN TRUE ELSE FALSE END as STATUS,
-            TO_ADDRESS,
-            TRANSACTION_HASH,
-            hex_to_int(TRANSACTION_INDEX) as TRANSACTION_INDEX,
-            TRY_CAST(hex_to_int(TYPE) as FLOAT) as TYPE,
-            V,
-            TRY_CAST(hex_to_int(VALUE) as FLOAT) as VALUE,
-            ACCESS_LIST,
-            INPUT,
-            SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-        FROM {{ source(var('raw_database'), 'transactions') }}
+        WHERE STATUS = '0x1' -- only interested in successful transactions
     ),
 {% endif %}
 
@@ -66,10 +99,7 @@ merged AS (
         t.*,
         m.METHOD_ID,
         m.hashable_signature,
-        CASE
-            WHEN t.status = '1' THEN m.abi -- only decode successful transactions
-            ELSE NULL
-        END AS ABI
+        m.abi
     FROM input_and_transaction t
     LEFT JOIN {{ source(var('contracts_database'), 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
@@ -171,10 +201,16 @@ no_abi AS (
     WHERE ABI IS NULL
 ),
 
-all_transactions AS (
-    SELECT * FROM decoded_cleaned
-    UNION ALL
-    SELECT * FROM no_abi
-)
+{% if not var('backfill') %} -- if not backfilling
+    all_transactions AS (
+        SELECT * FROM decoded_cleaned
+        UNION ALL
+        SELECT * FROM no_abi
+    )
+{% else %} -- backfilling
+    all_transactions AS (
+        SELECT * FROM decoded_cleaned WHERE DECODED_INPUT IS NOT NULL
+    )
+{% endif %}
 
 SELECT * FROM all_transactions

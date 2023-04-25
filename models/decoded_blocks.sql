@@ -23,7 +23,7 @@
         UNCLES,
         TRY_CAST(hex_to_int(BASE_FEE_PER_GAS) as FLOAT) AS base_fee_per_gas
     FROM {{ source(var('raw_database'), 'blocks') }}
-    WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3)))) > (SELECT MAX(CAST(block_number AS INTEGER)) FROM {{ this }}) -- this is the only change
+    WHERE to_number(SUBSTR(block_number, 3), repeat('X', length(SUBSTR(block_number, 3)))) > (SELECT MAX(block_number) FROM {{ this }}) -- this is the only change
 {% else %}
     SELECT
         TRY_CAST(hex_to_int(DIFFICULTY) as FLOAT) AS difficulty,
