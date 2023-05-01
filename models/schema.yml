@@ -44,3 +44,11 @@ sources:
       - name: decoded_blocks
         description: "ethereum decoded blocks"
         identifier: "{{ var('decoded_table_blocks') }}"
+  - name: "{{ var('verbs') }}"
+    description: "Database mapping method IDs to function verb and object"
+    database: "{{ var('verbs') }}"
+    schema: "{{ var('evm') }}"
+    tables:
+      - name: verbs
+        description: "table of method fragments"
+        identifier: "{{ var('verbs_table') }}"

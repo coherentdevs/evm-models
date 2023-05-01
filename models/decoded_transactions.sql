@@ -99,10 +99,14 @@ merged AS (
         t.*,
         m.METHOD_ID,
         m.hashable_signature,
-        m.abi
+        m.abi,
+        v.VERB,
+        v.OBJECT
     FROM input_and_transaction t
     LEFT JOIN {{ source(var('contracts_database'), 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
+    LEFT JOIN {{ source(var('verbs'), 'verbs')}} v
+        ON t.METHOD_HEADER = v.METHOD_ID
 ),
 
 decoded_transactions AS (
@@ -132,7 +136,9 @@ decoded_transactions AS (
         INPUT,
         HASHABLE_SIGNATURE,
         decode_input(abi, SUBSTRING(INPUT,11))[0] as decoded_result,
-        decode_input(abi, SUBSTRING(INPUT,11))[1] as decoded_success
+        decode_input(abi, SUBSTRING(INPUT,11))[1] as decoded_success,
+        VERB,
+        OBJECT
     FROM merged
     WHERE ABI IS NOT NULL
 ),
@@ -163,6 +169,8 @@ decoded_cleaned AS (
         ACCESS_LIST,
         INPUT,
         HASHABLE_SIGNATURE,
+        VERB,
+        OBJECT,
         CASE
             WHEN decoded_success = True THEN decoded_result
             ELSE NULL
@@ -196,7 +204,9 @@ no_abi AS (
         ACCESS_LIST,
         INPUT,
         NULL AS HASHABLE_SIGNATURE,
-        NULL AS DECODED_INPUT
+        NULL AS DECODED_INPUT,
+        NULL AS VERB,
+        NULL AS OBJECT
     FROM merged
     WHERE ABI IS NULL
 ),

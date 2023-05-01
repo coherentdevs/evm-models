@@ -77,10 +77,14 @@ merged AS (
         t.*,
         m.METHOD_ID,
         m.hashable_signature,
-        m.abi
+        m.abi,
+        v.VERB,
+        v.OBJECT
     FROM traces t
     LEFT JOIN {{ source(var('contracts_database'), 'method_fragments') }} m
         ON t.METHOD_HEADER = m.METHOD_ID
+    LEFT JOIN {{ source(var('verbs'), 'verbs')}} v
+        ON t.METHOD_HEADER = v.METHOD_ID
 ),
 
 decoded_traces AS (
@@ -103,6 +107,8 @@ decoded_traces AS (
         VALUE,
         ABI,
         HASHABLE_SIGNATURE,
+        VERB,
+        OBJECT,
         decode_input(abi, SUBSTRING(INPUT,11))[0] as decoded_result,
         decode_input(abi, SUBSTRING(INPUT,11))[1] as decoded_success
     FROM merged
@@ -128,6 +134,8 @@ decoded_cleaned AS (
         TYPE,
         VALUE,
         HASHABLE_SIGNATURE,
+        VERB,
+        OBJECT,
         CASE
             WHEN decoded_success = True THEN decoded_result
             ELSE NULL
@@ -154,6 +162,8 @@ no_abi AS (
         TYPE,
         VALUE,
         NULL AS HASHABLE_SIGNATURE,
+        NULL AS VERB,
+        NULL AS OBJECT,
         NULL AS DECODED_INPUT
     FROM merged
     WHERE ABI IS NULL
