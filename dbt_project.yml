@@ -25,6 +25,9 @@ vars:
   decoded_table_traces: "decoded_traces"
   decoded_table_blocks: "decoded_blocks"
   decoded_table_logs: "decoded_logs"
+  verbs: "enricher"
+  evm: "evm"
+  verbs_table: "verbs"
   backfill: False
 
 
