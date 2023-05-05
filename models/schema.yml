@@ -44,3 +44,37 @@ sources:
       - name: decoded_blocks
         description: "ethereum decoded blocks"
         identifier: "{{ var('decoded_table_blocks') }}"
+  - name: "{{ var('optimism_raw_database') }}"
+    description: "Database of optimism raw"
+    database: "{{ var('optimism_raw_database') }}"
+    schema: "{{ var('optimism_raw_schema') }}"
+    tables:
+      - name: transactions
+        description: "optimism raw transactions"
+        identifier: "{{ var('optimism_source_table_transactions') }}"
+      - name: logs
+        description: "optimism raw logs"
+        identifier: "{{ var('optimism_source_table_logs') }}"
+      - name: traces
+        description: "optimism raw traces"
+        identifier: "{{ var('optimism_source_table_traces') }}"
+      - name: blocks
+        description: "ethereum raw blocks"
+        identifier: "{{ var('optimism_source_table_blocks') }}"
+  - name: "{{ var('optimism_decoded_database') }}"
+    description: "Database of ethereum decoded"
+    database: "{{ var('optimism_decoded_database') }}"
+    schema: "{{ var('optimism_decoded_schema') }}"
+    tables:
+      - name: decoded_transactions
+        description: "optimism decoded transactions"
+        identifier: "{{ var('optimism_decoded_table_transactions') }}"
+      - name: decoded_logs
+        description: "optimism decoded logs"
+        identifier: "{{ var('optimism_decoded_table_logs') }}"
+      - name: decoded_traces
+        description: "optimism decoded traces"
+        identifier: "{{ var('optimism_decoded_table_traces') }}"
+      - name: decoded_blocks
+        description: "optimism decoded blocks"
+        identifier: "{{ var('optimism_decoded_table_blocks') }}"

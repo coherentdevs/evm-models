@@ -21,3 +21,23 @@ coherent_dbts:
       type: snowflake
       user: "{{ env_var('SNOWFLAKE_USER_PROD') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_PROD') }}"
+    optimism-development:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_OPTIMISM_DEV') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_OPTIMISM_DEV') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_OPTIMISM_DEV') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_OPTIMISM_DEV') }}"
+      schema: OPTIMISM_DEVELOPMENT
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_OPTIMISM_DEV') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_OPTIMISM_DEV') }}"
+    optimism-production:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_OPTIMISM_PROD') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_OPTIMISM_PROD') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_OPTIMISM_PROD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_OPTIMISM_PROD') }}"
+      schema: decoded
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_OPTIMISM_PROD') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_OPTIMISM_PROD') }}"
