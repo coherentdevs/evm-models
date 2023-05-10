@@ -11,6 +11,7 @@ profile: 'coherent_dbts'
 
 # default variable names if no vars are passed into the dbt run command
 vars:
+  # Ethereum variables
   raw_database: "ethereum_raw_data"
   source_table_transactions: "transactions"
   source_table_traces: "traces"
@@ -25,6 +26,19 @@ vars:
   decoded_table_traces: "decoded_traces"
   decoded_table_blocks: "decoded_blocks"
   decoded_table_logs: "decoded_logs"
+  # Optimism variables
+  optimism_raw_database: "optimism_raw_data"
+  optimism_source_table_transactions: "transactions"
+  optimism_source_table_traces: "traces"
+  optimism_source_table_blocks: "blocks"
+  optimism_source_table_logs: "logs"
+  optimism_raw_schema: "raw"
+  optimism_decoded_database: "optimism_decoded_data"
+  optimism_decoded_schema: "decoded"
+  optimism_decoded_table_transactions: "decoded_transactions"
+  optimism_decoded_table_traces: "decoded_traces"
+  optimism_decoded_table_blocks: "decoded_blocks"
+  optimism_decoded_table_logs: "decoded_logs"
   backfill: False
 
 
