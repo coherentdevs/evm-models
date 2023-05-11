@@ -78,3 +78,37 @@ sources:
       - name: decoded_optimism_blocks
         description: "optimism decoded blocks"
         identifier: "{{ var('decoded_optimism_blocks') }}"
+  - name: "{{ var('testnet_base_raw_database') }}"
+    description: "Database of testnet base raw"
+    database: "{{ var('testnet_base_raw_database') }}"
+    schema: "{{ var('testnet_base_raw_schema') }}"
+    tables:
+      - name: transactions
+        description: "testnet_base raw transactions"
+        identifier: "{{ var('testnet_base_source_table_transactions') }}"
+      - name: logs
+        description: "testnet_base raw logs"
+        identifier: "{{ var('testnet_base_source_table_logs') }}"
+      - name: traces
+        description: "testnet_base raw traces"
+        identifier: "{{ var('testnet_base_source_table_traces') }}"
+      - name: blocks
+        description: "ethereum raw blocks"
+        identifier: "{{ var('testnet_base_source_table_blocks') }}"
+  - name: "{{ var('testnet_base_decoded_database') }}"
+    description: "Database of ethereum decoded"
+    database: "{{ var('testnet_base_decoded_database') }}"
+    schema: "{{ var('testnet_base_decoded_schema') }}"
+    tables:
+      - name: decoded_testnet_base_transactions
+        description: "testnet_base decoded transactions"
+        identifier: "{{ var('decoded_testnet_base_transactions') }}"
+      - name: decoded_testnet_base_logs
+        description: "testnet_base decoded logs"
+        identifier: "{{ var('decoded_testnet_base_logs') }}"
+      - name: decoded_testnet_base_traces
+        description: "testnet_base decoded traces"
+        identifier: "{{ var('decoded_testnet_base_traces') }}"
+      - name: decoded_testnet_base_blocks
+        description: "testnet_base decoded blocks"
+        identifier: "{{ var('decoded_testnet_base_blocks') }}"

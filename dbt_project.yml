@@ -39,6 +39,19 @@ vars:
   decoded_optimism_traces: "decoded_optimism_traces"
   decoded_optimism_blocks: "decoded_optimism_blocks"
   decoded_optimism_logs: "decoded_optimism_logs"
+  # Base variables
+  testnet_base_raw_database: "testnet_base_raw_data"
+  testnet_base_source_table_transactions: "transactions"
+  testnet_base_source_table_traces: "traces"
+  testnet_base_source_table_blocks: "blocks"
+  testnet_base_source_table_logs: "logs"
+  testnet_base_raw_schema: "raw"
+  testnet_base_decoded_database: "testnet_base_decoded_data"
+  testnet_base_decoded_schema: "decoded"
+  decoded_testnet_base_transactions: "decoded_testnet_base_transactions"
+  decoded_testnet_base_traces: "decoded_testnet_base_traces"
+  decoded_testnet_base_blocks: "decoded_testnet_base_blocks"
+  decoded_testnet_base_logs: "decoded_testnet_base_logs"
   backfill: False
 
 
