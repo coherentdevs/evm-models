@@ -28,7 +28,7 @@
                 TRANSACTION_HASH,
                 TRANSACTION_INDEX,
                 REMOVED
-            FROM {{ source(var('decoded_database'), 'decoded_optimism_logs') }}
+            FROM {{ source(var('optimism_decoded_database'), 'decoded_optimism_logs') }}
             WHERE DECODED_RESULT is NULL
         ),
     {% endif %}
