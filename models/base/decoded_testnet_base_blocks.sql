@@ -46,5 +46,5 @@
         TRY_CAST(hex_to_int(TOTAL_DIFFICULTY) as FLOAT) as TOTAL_DIFFICULTY,
         TRANSACTIONS_ROOT,
         UNCLES
-    FROM {{ source(var('base_raw_database'), 'blocks') }}
+    FROM {{ source(var('testnet_base_raw_database'), 'blocks') }}
 {% endif %}
