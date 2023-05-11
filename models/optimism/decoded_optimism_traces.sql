@@ -44,7 +44,7 @@
                 TYPE,
                 VALUE,
                 SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
-            FROM {{ source(var('optimism_decoded_database'), 'decoded_traces') }}
+            FROM {{ source(var('optimism_decoded_database'), 'decoded_optimism_traces') }}
             WHERE DECODED_INPUT is NULL AND INPUT != '0x'
         ),
     {% endif %}

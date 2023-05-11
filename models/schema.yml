@@ -66,15 +66,15 @@ sources:
     database: "{{ var('optimism_decoded_database') }}"
     schema: "{{ var('optimism_decoded_schema') }}"
     tables:
-      - name: decoded_transactions
+      - name: decoded_optimism_transactions
         description: "optimism decoded transactions"
-        identifier: "{{ var('optimism_decoded_table_transactions') }}"
-      - name: decoded_logs
+        identifier: "{{ var('decoded_optimism_transactions') }}"
+      - name: decoded_optimism_logs
         description: "optimism decoded logs"
-        identifier: "{{ var('optimism_decoded_table_logs') }}"
-      - name: decoded_traces
+        identifier: "{{ var('decoded_optimism_logs') }}"
+      - name: decoded_optimism_traces
         description: "optimism decoded traces"
-        identifier: "{{ var('optimism_decoded_table_traces') }}"
-      - name: decoded_blocks
+        identifier: "{{ var('decoded_optimism_traces') }}"
+      - name: decoded_optimism_blocks
         description: "optimism decoded blocks"
-        identifier: "{{ var('optimism_decoded_table_blocks') }}"
+        identifier: "{{ var('decoded_optimism_blocks') }}"

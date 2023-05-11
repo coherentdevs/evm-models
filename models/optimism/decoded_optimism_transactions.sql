@@ -68,7 +68,8 @@
                 L1_FEE,
                 L1_FEE_SCALAR,
                 L1_GAS_PRICE,
-                L1_GAS_USED
+                L1_GAS_USED,
+                SUBSTRING(INPUT, 0, 10) AS METHOD_HEADER
             FROM {{ source(var('optimism_decoded_database'), 'decoded_optimism_transactions') }}
             WHERE DECODED_INPUT is NULL AND INPUT != '0x'
         ),
