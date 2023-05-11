@@ -35,10 +35,10 @@ vars:
   optimism_raw_schema: "raw"
   optimism_decoded_database: "optimism_decoded_data"
   optimism_decoded_schema: "decoded"
-  optimism_decoded_table_transactions: "decoded_transactions"
-  optimism_decoded_table_traces: "decoded_traces"
-  optimism_decoded_table_blocks: "decoded_blocks"
-  optimism_decoded_table_logs: "decoded_logs"
+  decoded_optimism_transactions: "decoded_optimism_transactions"
+  decoded_optimism_traces: "decoded_optimism_traces"
+  decoded_optimism_blocks: "decoded_optimism_blocks"
+  decoded_optimism_logs: "decoded_optimism_logs"
   backfill: False
 
 
