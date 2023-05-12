@@ -41,3 +41,23 @@ coherent_dbts:
       type: snowflake
       user: "{{ env_var('SNOWFLAKE_USER_OPTIMISM_PROD') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_OPTIMISM_PROD') }}"
+    testnet-base-development:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_TESTNET_BASE_DEV') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_TESTNET_BASE_DEV') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_TESTNET_BASE_DEV') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_TESTNET_BASE_DEV') }}"
+      schema: TESTNET_BASE_DEVELOPMENT
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_TESTNET_BASE_DEV') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_TESTNET_BASE_DEV') }}"
+    testnet-base-production:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_TESTNET_BASE_PROD') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_TESTNET_BASE_PROD') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_TESTNET_BASE_PROD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_TESTNET_BASE_PROD') }}"
+      schema: decoded
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_TESTNET_BASE_PROD') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_TESTNET_BASE_PROD') }}"
