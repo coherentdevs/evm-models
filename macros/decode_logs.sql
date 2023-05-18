@@ -23,7 +23,6 @@ def decode_logs(abi, data, topics):
         decode_success = True
         if data == "":
             for input_obj in json_object['inputs']:
-                print(topics_array[topics_index][2:])
                 decode_single_res, decoded_successfully, _bytes_read = decode_single(topics_array[topics_index][2:], input_obj['type'], 0)
                 topics_index += 1
 
