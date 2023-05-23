@@ -95,7 +95,7 @@
 {% endif %}
 
 merged AS (
-    SELECT
+    SELECT DISTINCT
         t.*,
         m.METHOD_ID,
         m.hashable_signature,
