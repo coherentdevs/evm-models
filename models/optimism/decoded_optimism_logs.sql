@@ -64,7 +64,7 @@ logs_with_event_id AS (
 ),
 
 merged AS (
-    SELECT
+    SELECT DISTINCT
         l.*,
         e.event_id,
         e.abi,
