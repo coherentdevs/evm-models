@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key=['trace_hash'], merge_update_columns = ['hashable_signature', 'decoded_input'], cluster_by=['transaction_hash']) }}
+{{ config(materialized='incremental', unique_key=['transaction_hash','trace_hash','parent_hash','trace_index'], merge_update_columns = ['hashable_signature', 'decoded_input'], cluster_by=['transaction_hash']) }}
 
 {% if is_incremental() %}
     {% if not var('backfill') %} -- if not backfilling
