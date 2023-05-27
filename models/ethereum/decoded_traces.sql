@@ -83,6 +83,15 @@ merged AS (
         ON t.METHOD_HEADER = m.METHOD_ID
 ),
 
+timestamped AS (
+    SELECT
+        m.*,
+        b.TIMESTAMP
+    FROM merged m
+    LEFT JOIN {{ ref('decoded_blocks') }} b
+        ON m.BLOCK_NUMBER = b.BLOCK_NUMBER
+)
+
 decoded_traces AS (
     SELECT
         BLOCK_HASH,
@@ -96,6 +105,7 @@ decoded_traces AS (
         OUTPUT,
         PARENT_HASH,
         REVERT_REASON,
+        TIMESTAMP,
         TO_ADDRESS,
         TRACE_HASH,
         TRANSACTION_HASH,
@@ -105,7 +115,7 @@ decoded_traces AS (
         HASHABLE_SIGNATURE,
         decode_input(abi, SUBSTRING(INPUT,11))[0] as decoded_result,
         decode_input(abi, SUBSTRING(INPUT,11))[1] as decoded_success
-    FROM merged
+    FROM timestamped
     WHERE ABI IS NOT NULL
 ),
 
@@ -122,6 +132,7 @@ decoded_cleaned AS (
         OUTPUT,
         PARENT_HASH,
         REVERT_REASON,
+        TIMESTAMP,
         TO_ADDRESS,
         TRACE_HASH,
         TRANSACTION_HASH,
@@ -148,6 +159,7 @@ no_abi AS (
         OUTPUT,
         PARENT_HASH,
         REVERT_REASON,
+        TIMESTAMP,
         TO_ADDRESS,
         TRACE_HASH,
         TRANSACTION_HASH,
@@ -155,7 +167,7 @@ no_abi AS (
         VALUE,
         NULL AS HASHABLE_SIGNATURE,
         NULL AS DECODED_INPUT
-    FROM merged
+    FROM timestamped
     WHERE ABI IS NULL
 ),
 {% if not var('backfill') %} -- if not backfilling
