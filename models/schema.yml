@@ -113,7 +113,7 @@ sources:
         description: "testnet_base decoded blocks"
         identifier: "{{ var('decoded_testnet_base_blocks') }}"
   - name: "{{ var('polygon_raw_database') }}"
-    description: "Database of testnet base raw"
+    description: "Database of polygon raw"
     database: "{{ var('polygon_raw_database') }}"
     schema: "{{ var('polygon_raw_schema') }}"
     tables:
@@ -130,7 +130,7 @@ sources:
         description: "polygon raw blocks"
         identifier: "{{ var('polygon_source_table_blocks') }}"
   - name: "{{ var('polygon_decoded_database') }}"
-    description: "Database of ethereum decoded"
+    description: "Database of polygon decoded"
     database: "{{ var('polygon_decoded_database') }}"
     schema: "{{ var('polygon_decoded_schema') }}"
     tables:
