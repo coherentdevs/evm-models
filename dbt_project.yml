@@ -52,6 +52,19 @@ vars:
   decoded_testnet_base_traces: "decoded_testnet_base_traces"
   decoded_testnet_base_blocks: "decoded_testnet_base_blocks"
   decoded_testnet_base_logs: "decoded_testnet_base_logs"
+  # Polygon variables
+  polygon_raw_database: "polygon_raw_data"
+  polygon_source_table_transactions: "transactions"
+  polygon_source_table_traces: "traces"
+  polygon_source_table_blocks: "blocks"
+  polygon_source_table_logs: "logs"
+  polygon_raw_schema: "raw"
+  polygon_decoded_database: "polygon_decoded_data"
+  polygon_decoded_schema: "decoded"
+  decoded_polygon_transactions: "decoded_polygon_transactions"
+  decoded_polygon_traces: "decoded_polygon_traces"
+  decoded_polygon_blocks: "decoded_polygon_blocks"
+  decoded_polygon_logs: "decoded_polygon_logs"
   backfill: False
 
 

@@ -93,7 +93,7 @@ sources:
         description: "testnet_base raw traces"
         identifier: "{{ var('testnet_base_source_table_traces') }}"
       - name: blocks
-        description: "ethereum raw blocks"
+        description: "testnet base raw blocks"
         identifier: "{{ var('testnet_base_source_table_blocks') }}"
   - name: "{{ var('testnet_base_decoded_database') }}"
     description: "Database of ethereum decoded"
@@ -112,3 +112,37 @@ sources:
       - name: decoded_testnet_base_blocks
         description: "testnet_base decoded blocks"
         identifier: "{{ var('decoded_testnet_base_blocks') }}"
+  - name: "{{ var('polygon_raw_database') }}"
+    description: "Database of testnet base raw"
+    database: "{{ var('polygon_raw_database') }}"
+    schema: "{{ var('polygon_raw_schema') }}"
+    tables:
+      - name: transactions
+        description: "polygon raw transactions"
+        identifier: "{{ var('polygon_source_table_transactions') }}"
+      - name: logs
+        description: "polygon raw logs"
+        identifier: "{{ var('polygon_source_table_logs') }}"
+      - name: traces
+        description: "polygon raw traces"
+        identifier: "{{ var('polygon_source_table_traces') }}"
+      - name: blocks
+        description: "polygon raw blocks"
+        identifier: "{{ var('polygon_source_table_blocks') }}"
+  - name: "{{ var('polygon_decoded_database') }}"
+    description: "Database of ethereum decoded"
+    database: "{{ var('polygon_decoded_database') }}"
+    schema: "{{ var('polygon_decoded_schema') }}"
+    tables:
+      - name: decoded_polygon_transactions
+        description: "polygon decoded transactions"
+        identifier: "{{ var('decoded_polygon_transactions') }}"
+      - name: decoded_polygon_logs
+        description: "polygon decoded logs"
+        identifier: "{{ var('decoded_polygon_logs') }}"
+      - name: decoded_polygon_traces
+        description: "polygon decoded traces"
+        identifier: "{{ var('decoded_polygon_traces') }}"
+      - name: decoded_polygon_blocks
+        description: "polygon decoded blocks"
+        identifier: "{{ var('decoded_polygon_blocks') }}"

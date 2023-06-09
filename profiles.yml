@@ -61,3 +61,23 @@ coherent_dbts:
       type: snowflake
       user: "{{ env_var('SNOWFLAKE_USER_TESTNET_BASE_PROD') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_TESTNET_BASE_PROD') }}"
+    polygon-development:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_POLYGON_DEV') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_POLYGON_DEV') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_POLYGON_DEV') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_POLYGON_DEV') }}"
+      schema: POLYGON_DEVELOPMENT
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_POLYGON_DEV') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_POLYGON_DEV') }}"
+    polygon-production:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT_POLYGON_PROD') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE_POLYGON_PROD') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD_POLYGON_PROD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE_POLYGON_PROD') }}"
+      schema: decoded
+      threads: 8
+      type: snowflake
+      user: "{{ env_var('SNOWFLAKE_USER_POLYGON_PROD') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE_POLYGON_PROD') }}"
